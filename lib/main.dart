@@ -1,5 +1,6 @@
-import 'package:http/http.dart' as http;
-import 'package:shimmer/shimmer.dart';
+import 'package:app_pesantren/Page/menu_filter.dart';
+import "package:http/http.dart" as http;
+// import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'Page/FormData.dart';
@@ -26,18 +27,18 @@ class HomePage extends StatelessWidget {
 }
 
 class myHomePage extends StatefulWidget {
-  myHomePage({Key? key}) : super(key: key);
-
-  get keyword => null;
+  myHomePage({Key? key});
 
   @override
   State<myHomePage> createState() => _myHomePageState();
 }
 
 class _myHomePageState extends State<myHomePage> {
-  List<SantriModel> data = [];
+  static List<SantriModel> data = [];
   bool loading = false;
   TextEditingController searchController = TextEditingController();
+  bool isSearching = false;
+  bool cekData = true;
 
   // get data
   Future<void> getSantri() async {
@@ -46,7 +47,7 @@ class _myHomePageState extends State<myHomePage> {
     });
     try {
       final response = await http
-          .get(Uri.parse("http://192.168.10.5:8081/db_pesantren/getData.php"));
+          .get(Uri.parse("http://192.168.10.7:8081/db_pesantren/getData.php"));
       print(response.body);
       data = (json.decode(response.body) as List?) != null &&
               (json.decode(response.body) as List).isNotEmpty
@@ -64,10 +65,11 @@ class _myHomePageState extends State<myHomePage> {
 
 // Loading
   Future<void> RefreshData() async {
-    print("berhasil loading");
     await Future.delayed(Duration(seconds: 1));
     InitData();
-    setState(() {});
+    setState(() {
+      getSantri();
+    });
   }
 
 // Proses Loading
@@ -84,13 +86,19 @@ class _myHomePageState extends State<myHomePage> {
     // Loading Pull
     InitData();
     // Search
+    super.initState();
+  }
+
+  void _runFilter(String enteredKeyword) {
     setState(() {
-      data = data
-          .where((element) => element.nameSantri!
-              .toLowerCase()
-              .contains(widget.keyword.toLowerCase()))
-          .toList();
-      print("Masuk Pencarian");
+      (enteredKeyword.isEmpty)
+          ? data
+          : data
+              .where((Element) => Element.nameSantri!
+                  .toLowerCase()
+                  .contains(enteredKeyword.toLowerCase()))
+              .toList();
+      print(searchController.text);
     });
   }
 
@@ -123,24 +131,29 @@ class _myHomePageState extends State<myHomePage> {
                         child: SizedBox(
                           width: 300,
                           child: TextField(
+                            onChanged: (value) =>
+                                _runFilter(searchController.text),
                             controller: searchController,
                             decoration: InputDecoration(
                                 enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent)),
+                                  borderRadius: BorderRadius.circular(5),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
                                 filled: true,
                                 // fillColor: Colors.transparent,
                                 hintText: "Search...",
                                 prefixIcon: Icon(Icons.search_rounded)),
-                            // onChanged: ,
                           ),
                         ),
                       ),
+                      // FILTER BOTTOM SHEET
                       Container(
                         color: Colors.grey[200],
-                        width: 55,
-                        height: 55,
+                        width: 50,
+                        height: 50,
                         child: Padding(
                           padding: const EdgeInsets.all(5),
                           child: IconButton(
@@ -153,223 +166,7 @@ class _myHomePageState extends State<myHomePage> {
                                 ),
                                 context: context,
                                 builder: (context) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Center(
-                                          child: Container(
-                                            height: 3,
-                                            width: 60,
-                                            color: Colors.grey[300],
-                                          ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Column(
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    "Filter",
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: .7,
-                                                  width: 50,
-                                                  color: Colors.grey[300],
-                                                ),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Icon(
-                                                  Icons.filter_list_rounded),
-                                            )
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text("Daerah"),
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Cirebon"),
-                                                )),
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Kuningan"),
-                                                )),
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Indramayu"),
-                                                )),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 15,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Cirebon"),
-                                                )),
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Kuningan"),
-                                                )),
-                                            Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child: Text("Indramayu"),
-                                                )),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text("Kelas"),
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    4,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child:
-                                                      Center(child: Text("7")),
-                                                )),
-                                            Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    4,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child:
-                                                      Center(child: Text("8")),
-                                                )),
-                                            Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    4,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 7),
-                                                  child:
-                                                      Center(child: Text("9")),
-                                                )),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  return menuFilter();
                                 }),
                             icon: Icon(Icons.filter_list_alt),
                           ),
@@ -377,45 +174,47 @@ class _myHomePageState extends State<myHomePage> {
                       )
                     ],
                   ),
+                  // Widget List Builder
                   Expanded(
                     child: RefreshIndicator(
-                      onRefresh: RefreshData,
-                      child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        padding: EdgeInsets.all(5),
-                        itemCount: data.isEmpty ? 0 : data.length,
-                        itemBuilder: (context, index) {
-                          return Card(
-                            shadowColor: Colors.orange,
-                            elevation: 3,
-                            child: ListTile(
-                              onTap: () => Navigator.of(context)
-                                  .push(MaterialPageRoute(
-                                      builder: ((context) => detail(
-                                            data: data[index],
-                                          ))))
-                                  .then((value) => getSantri()),
-                              leading: CircleAvatar(
-                                child: Icon(Icons.people_alt_outlined),
+                        onRefresh: RefreshData,
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          padding: EdgeInsets.all(5),
+                          itemCount: data.isEmpty ? 0 : data.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              semanticContainer: true,
+                              borderOnForeground: true,
+                              elevation: 1.8,
+                              child: ListTile(
+                                onTap: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: ((context) => detail(
+                                              data: data[index],
+                                            ))))
+                                    .then((value) => getSantri()),
+                                leading: CircleAvatar(
+                                  child: Icon(Icons.people_alt_outlined),
+                                ),
+                                title: Text(data[index].nameSantri ?? '-'),
+                                subtitle: Row(
+                                  children: [
+                                    Text(data[index].kelas ?? '-',
+                                        style: TextStyle(color: Colors.green)),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(right: 3, left: 3),
+                                      child: Text("-"),
+                                    ),
+                                    Text(data[index].alamat ?? '-'),
+                                  ],
+                                ),
                               ),
-                              title: Text(data[index].nameSantri ?? '-'),
-                              subtitle: Row(
-                                children: [
-                                  Text(data[index].kelas ?? '-',
-                                      style: TextStyle(color: Colors.green)),
-                                  Padding(
-                                    padding: EdgeInsets.only(right: 3, left: 3),
-                                    child: Text("-"),
-                                  ),
-                                  Text(data[index].alamat ?? '-'),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                            );
+                          },
+                        )),
                   ),
                 ],
               ),
@@ -427,11 +226,3 @@ class _myHomePageState extends State<myHomePage> {
     );
   }
 }
-
-// Shimmer getShimmerLoading() {
-//   return Shimmer.fromColors(
-//       baseColor: Colors.grey[300]!,
-//       highlightColor: Colors.grey[100]!,
-//       child: ,
-//       );
-// }

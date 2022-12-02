@@ -27,9 +27,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  mysql1: ^0.19.2
   shimmer: ^2.0.0
-  # dropdown_search: ^5.0.2
+
   flutter:
     sdk: flutter
 
@@ -38,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   sqflite: ^2.0.2+1
   http: ^0.13.4
+  rflutter_alert: ^2.0.4
 
 dev_dependencies:
   flutter_test:

@@ -38,27 +38,3 @@ class SantriModel {
     return data;
   }
 }
-
-List<SantriModel> allData = [
-  SantriModel(
-      nameSantri: "Kecoa",
-      kelas: "10A",
-      waliSantri: "Sudirman",
-      noHp: "0980",
-      pekerjaan: "ngasah",
-      alamat: "ngajuk"),
-  SantriModel(
-      nameSantri: "Kucing",
-      kelas: "10B",
-      waliSantri: "Sudirman",
-      noHp: "0980",
-      pekerjaan: "ngasah",
-      alamat: "ngajuk"),
-  SantriModel(
-      nameSantri: "Minang",
-      kelas: "10A",
-      waliSantri: "Sudirman",
-      noHp: "0980",
-      pekerjaan: "ngasah",
-      alamat: "ngajuk"),
-];
